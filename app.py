@@ -6,9 +6,6 @@ import mediapipe as mp
 from tensorflow.keras.models import load_model
 import pickle
 
-# Set the page configuration for a more polished appearance
-st.set_page_config(page_title="Semaphore Recognition", page_icon="🔠", layout="wide")
-
 # Load model
 model = load_model('model/landmark_model.h5')
 with open('model/label_encoder.pkl', 'rb') as f:
@@ -25,7 +22,12 @@ key_points = {
     'nose': mp_pose.PoseLandmark.NOSE,
 }
 
-# Prediksi 1 gambar
+# Ensure the 'static/uploads' directory exists
+upload_folder = "static/uploads"
+if not os.path.exists(upload_folder):
+    os.makedirs(upload_folder)
+
+# Function to predict letter from image
 def predict_letter(image_path):
     image = cv2.imread(image_path)
     if image is None:
@@ -34,8 +36,10 @@ def predict_letter(image_path):
     results = pose.process(image_rgb)
     if not results.pose_landmarks:
         return "?"
+
     landmarks = results.pose_landmarks.landmark
     coords = []
+
     for idx in key_points.values():
         lm = landmarks[idx]
         coords.extend([lm.x, lm.y])
@@ -50,44 +54,32 @@ def predict_letter(image_path):
     letter = label_encoder.inverse_transform([label_index])[0]
     return letter
 
-# Mengatur layout halaman
-st.title("Semaphore Flag Recognition 🔠")
-st.markdown("""
-    <style>
-        .big-font {
-            font-size:40px !important;
-            color: #4CAF50;
-            text-align: center;
-        }
-        .header {
-            color: #fff;
-            background-color: #4CAF50;
-            padding: 10px;
-            border-radius: 10px;
-        }
-    </style>
-    """, unsafe_allow_html=True)
+# Streamlit Interface
+st.title("Body Tracking and Letter Prediction")
 
-# Menampilkan instruksi
-st.markdown('<p class="big-font">Upload gambar semaphore untuk diterjemahkan ke huruf!</p>', unsafe_allow_html=True)
+# Upload multiple files
+uploaded_files = st.file_uploader("Upload Images", accept_multiple_files=True, type=["jpg", "jpeg", "png"])
 
-# Upload gambar
-uploaded_files = st.file_uploader("Pilih gambar semaphore", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 if uploaded_files:
     predictions = []
+    
+    # Save uploaded files to static/uploads
     for uploaded_file in uploaded_files:
-        # Simpan gambar sementara
-        img_path = os.path.join("static/uploads", uploaded_file.name)
+        # Save each uploaded file to the correct path
+        img_path = os.path.join(upload_folder, uploaded_file.name)
         with open(img_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
-
-        # Prediksi
+        
+        # Predict the letter from the saved image
         letter = predict_letter(img_path)
-        predictions.append(letter)
+        predictions.append({'filename': uploaded_file.name, 'letter': letter})
 
-    # Menampilkan hasil
-    word = ''.join(predictions)
-    st.subheader(f"Hasil: {word}")
+    # Display predictions
+    st.write("Predictions:")
+    for pred in predictions:
+        st.image(os.path.join(upload_folder, pred['filename']), caption=pred['filename'])
+        st.write(f"Predicted Letter: {pred['letter']}")
 
-    # Menampilkan gambar-gambar yang diupload
-    st.image([file for file in uploaded_files], caption=[file.name for file in uploaded_files], width=150)
+    # Combine all predicted letters into a word
+    word = ''.join([item['letter'] for item in predictions])
+    st.write(f"Predicted Word: {word}")
