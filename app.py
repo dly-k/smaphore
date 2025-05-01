@@ -6,10 +6,20 @@ from tensorflow.keras.models import load_model
 import pickle
 from PIL import Image
 
-# Load model
-model = load_model('model/landmark_model.h5')
-with open('model/label_encoder.pkl', 'rb') as f:
-    label_encoder = pickle.load(f)
+# Cache model dan label encoder menggunakan st.cache_resource
+@st.cache_resource
+def load_model_and_encoder():
+    # Load model
+    model = load_model('model/landmark_model.h5')
+    
+    # Load label encoder
+    with open('model/label_encoder.pkl', 'rb') as f:
+        label_encoder = pickle.load(f)
+    
+    return model, label_encoder
+
+# Muat model dan label encoder hanya sekali saat aplikasi dijalankan
+model, label_encoder = load_model_and_encoder()
 
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose(static_image_mode=True)
