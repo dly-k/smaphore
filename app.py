@@ -54,17 +54,11 @@ uploaded_files = st.file_uploader("Pilih gambar", type=["png", "jpg", "jpeg"], a
 if uploaded_files:
     predictions = []
     for uploaded_file in uploaded_files:
-        # Menangani gambar yang diupload tanpa menyimpannya ke disk
         image = Image.open(uploaded_file)
         st.image(image, caption="Uploaded Image", use_column_width=True)
-        
-        # Prediksi huruf dari gambar yang diupload
         letter = predict_letter(image)
         predictions.append(letter)
 
     word = ''.join(predictions)
     st.subheader("Predicted Word:")
     st.write(word)
-
-    # Menghapus gambar setelah diproses (dengan tidak menyimpannya di tempat lain)
-    uploaded_files = []  # Gambar dihapus dari daftar
