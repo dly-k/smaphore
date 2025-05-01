@@ -6,20 +6,10 @@ from tensorflow.keras.models import load_model
 import pickle
 from PIL import Image
 
-# Cache model dan label encoder menggunakan st.cache_resource
-@st.cache_resource
-def load_model_and_encoder():
-    # Load model
-    model = load_model('model/landmark_model.h5')
-    
-    # Load label encoder
-    with open('model/label_encoder.pkl', 'rb') as f:
-        label_encoder = pickle.load(f)
-    
-    return model, label_encoder
-
-# Muat model dan label encoder hanya sekali saat aplikasi dijalankan
-model, label_encoder = load_model_and_encoder()
+# Load model
+model = load_model('model/landmark_model.h5')
+with open('model/label_encoder.pkl', 'rb') as f:
+    label_encoder = pickle.load(f)
 
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose(static_image_mode=True)
@@ -64,11 +54,17 @@ uploaded_files = st.file_uploader("Pilih gambar", type=["png", "jpg", "jpeg"], a
 if uploaded_files:
     predictions = []
     for uploaded_file in uploaded_files:
+        # Menangani gambar yang diupload tanpa menyimpannya ke disk
         image = Image.open(uploaded_file)
         st.image(image, caption="Uploaded Image", use_column_width=True)
+        
+        # Prediksi huruf dari gambar yang diupload
         letter = predict_letter(image)
         predictions.append(letter)
 
     word = ''.join(predictions)
     st.subheader("Predicted Word:")
     st.write(word)
+
+    # Menghapus gambar setelah diproses (dengan tidak menyimpannya di tempat lain)
+    uploaded_files = []  # Gambar dihapus dari daftar
