@@ -1,0 +1,7 @@
+streamlit
+tensorflow
+opencv-python
+mediapipe
+numpy
+pillow
+pickle-mixin
