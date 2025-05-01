@@ -1,10 +1,10 @@
 import streamlit as st
-import os
 import cv2
 import numpy as np
 import mediapipe as mp
 from tensorflow.keras.models import load_model
 import pickle
+from PIL import Image
 
 # Load model
 model = load_model('model/landmark_model.h5')
@@ -22,24 +22,15 @@ key_points = {
     'nose': mp_pose.PoseLandmark.NOSE,
 }
 
-# Ensure the 'static/uploads' directory exists
-upload_folder = "static/uploads"
-if not os.path.exists(upload_folder):
-    os.makedirs(upload_folder)
-
-# Function to predict letter from image
-def predict_letter(image_path):
-    image = cv2.imread(image_path)
-    if image is None:
-        return "?"
-    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+def predict_letter(image):
+    image_np = np.array(image)
+    image_rgb = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
     results = pose.process(image_rgb)
     if not results.pose_landmarks:
         return "?"
 
     landmarks = results.pose_landmarks.landmark
     coords = []
-
     for idx in key_points.values():
         lm = landmarks[idx]
         coords.extend([lm.x, lm.y])
@@ -54,32 +45,20 @@ def predict_letter(image_path):
     letter = label_encoder.inverse_transform([label_index])[0]
     return letter
 
-# Streamlit Interface
-st.title("Body Tracking and Letter Prediction")
+# Streamlit UI
+st.title("Semaphore Letter Prediction")
+st.write("Upload beberapa gambar untuk diprediksi:")
 
-# Upload multiple files
-uploaded_files = st.file_uploader("Upload Images", accept_multiple_files=True, type=["jpg", "jpeg", "png"])
+uploaded_files = st.file_uploader("Pilih gambar", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
 
 if uploaded_files:
     predictions = []
-    
-    # Save uploaded files to static/uploads
     for uploaded_file in uploaded_files:
-        # Save each uploaded file to the correct path
-        img_path = os.path.join(upload_folder, uploaded_file.name)
-        with open(img_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        
-        # Predict the letter from the saved image
-        letter = predict_letter(img_path)
-        predictions.append({'filename': uploaded_file.name, 'letter': letter})
+        image = Image.open(uploaded_file)
+        st.image(image, caption="Uploaded Image", use_column_width=True)
+        letter = predict_letter(image)
+        predictions.append(letter)
 
-    # Display predictions
-    st.write("Predictions:")
-    for pred in predictions:
-        st.image(os.path.join(upload_folder, pred['filename']), caption=pred['filename'])
-        st.write(f"Predicted Letter: {pred['letter']}")
-
-    # Combine all predicted letters into a word
-    word = ''.join([item['letter'] for item in predictions])
-    st.write(f"Predicted Word: {word}")
+    word = ''.join(predictions)
+    st.subheader("Predicted Word:")
+    st.write(word)
