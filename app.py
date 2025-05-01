@@ -1,10 +1,13 @@
 import streamlit as st
+import os
 import cv2
 import numpy as np
 import mediapipe as mp
 from tensorflow.keras.models import load_model
 import pickle
-from PIL import Image
+
+# Set the page configuration for a more polished appearance
+st.set_page_config(page_title="Semaphore Recognition", page_icon="🔠", layout="wide")
 
 # Load model
 model = load_model('model/landmark_model.h5')
@@ -22,13 +25,15 @@ key_points = {
     'nose': mp_pose.PoseLandmark.NOSE,
 }
 
-def predict_letter(image):
-    image_np = np.array(image)
-    image_rgb = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
+# Prediksi 1 gambar
+def predict_letter(image_path):
+    image = cv2.imread(image_path)
+    if image is None:
+        return "?"
+    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = pose.process(image_rgb)
     if not results.pose_landmarks:
         return "?"
-
     landmarks = results.pose_landmarks.landmark
     coords = []
     for idx in key_points.values():
@@ -45,20 +50,44 @@ def predict_letter(image):
     letter = label_encoder.inverse_transform([label_index])[0]
     return letter
 
-# Streamlit UI
-st.title("Semaphore Letter Prediction")
-st.write("Upload beberapa gambar untuk diprediksi:")
+# Mengatur layout halaman
+st.title("Semaphore Flag Recognition 🔠")
+st.markdown("""
+    <style>
+        .big-font {
+            font-size:40px !important;
+            color: #4CAF50;
+            text-align: center;
+        }
+        .header {
+            color: #fff;
+            background-color: #4CAF50;
+            padding: 10px;
+            border-radius: 10px;
+        }
+    </style>
+    """, unsafe_allow_html=True)
 
-uploaded_files = st.file_uploader("Pilih gambar", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
+# Menampilkan instruksi
+st.markdown('<p class="big-font">Upload gambar semaphore untuk diterjemahkan ke huruf!</p>', unsafe_allow_html=True)
 
+# Upload gambar
+uploaded_files = st.file_uploader("Pilih gambar semaphore", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 if uploaded_files:
     predictions = []
     for uploaded_file in uploaded_files:
-        image = Image.open(uploaded_file)
-        st.image(image, caption="Uploaded Image", use_column_width=True)
-        letter = predict_letter(image)
+        # Simpan gambar sementara
+        img_path = os.path.join("static/uploads", uploaded_file.name)
+        with open(img_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+
+        # Prediksi
+        letter = predict_letter(img_path)
         predictions.append(letter)
 
+    # Menampilkan hasil
     word = ''.join(predictions)
-    st.subheader("Predicted Word:")
-    st.write(word)
+    st.subheader(f"Hasil: {word}")
+
+    # Menampilkan gambar-gambar yang diupload
+    st.image([file for file in uploaded_files], caption=[file.name for file in uploaded_files], width=150)
