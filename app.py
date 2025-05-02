@@ -81,13 +81,6 @@ st.markdown("""
         color: #bb86fc;
         margin-bottom: 10px;
     }
-    .file-name {
-        font-size: 14px;
-        text-align: center;
-        color: #999999;
-        margin-top: 6px;
-        margin-bottom: 12px;
-    }
     .result-word {
         font-size: 24px;
         font-weight: 600;
@@ -122,7 +115,7 @@ if uploaded_files:
     for uploaded_file in uploaded_files:
         image = Image.open(uploaded_file)
         letter = predict_letter(image)
-        predictions.append((uploaded_file.name, image, letter))
+        predictions.append((image, letter))
         word += letter
 
     st.markdown(f'<div class="result-word">Hasil: {word}</div>', unsafe_allow_html=True)
@@ -132,11 +125,10 @@ if uploaded_files:
         cols = st.columns(max_columns)
         for col in cols:
             if idx < num_files:
-                filename, image, letter = predictions[idx]
+                image, letter = predictions[idx]
                 with col:
                     st.markdown(f'<div class="pred-label">{letter}</div>', unsafe_allow_html=True)
                     st.image(image, use_container_width=True, output_format="JPEG", clamp=True)
-                    st.markdown(f'<div class="file-name">{filename}</div>', unsafe_allow_html=True)
                 idx += 1
             else:
                 break
