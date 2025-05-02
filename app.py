@@ -104,20 +104,20 @@ if uploaded_files:
     num_files = len(uploaded_files)
     num_rows = (num_files // max_columns) + 1
 
-    idx = 0
-    for _ in range(num_rows):
-        cols = st.columns(max_columns)
-        for col in cols:
-            if idx < num_files:
-                image = Image.open(uploaded_files[idx])
-                letter = predict_letter(image)
-                word += letter
-                with col:
-                    st.markdown(f'<div class="pred-label">{letter}</div>', unsafe_allow_html=True)
-                    st.image(image, use_column_width=True, output_format="JPEG", clamp=True)
-                idx += 1
-            else:
-                break
+idx = 0
+for _ in range(num_rows):
+    cols = st.columns(max_columns)
+    for col in cols:
+        if idx < num_files:
+            image = Image.open(uploaded_files[idx])
+            letter = predict_letter(image)
+            word += letter
+            with col:
+                st.markdown(f'<div class="pred-label">{letter}</div>', unsafe_allow_html=True)
+                st.image(image, use_container_width=True, output_format="JPEG", clamp=True)
+            idx += 1
+        else:
+            break
 
     st.markdown(f'<div class="pred-label">🔤 <strong>Kata Hasil Prediksi:</strong> {word}</div>', unsafe_allow_html=True)
 
