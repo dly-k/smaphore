@@ -53,72 +53,71 @@ def predict_letter(image):
     letter = label_encoder.inverse_transform([label_index])[0]
     return letter
 
-# Custom Styling
+# Custom Dark Styling
 st.markdown("""
     <style>
     .stApp {
-        background-color: #fafafa;
-        font-family: 'Poppins', sans-serif;
+        background-color: #121212;
+        color: #e0e0e0;
+        font-family: 'Inter', sans-serif;
     }
     .title-text {
-        font-size: 42px;
+        font-size: 36px;
         font-weight: 700;
         text-align: center;
-        color: #3a0ca3;
-        margin-bottom: 10px;
-    }
-    .subtitle-text {
-        font-size: 18px;
-        text-align: center;
-        color: #555;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
+        color: #ffffff;
     }
     .subheader-text {
-        font-size: 26px;
-        font-weight: 600;
-        color: #5f0f40;
+        font-size: 20px;
+        font-weight: 500;
         margin-bottom: 20px;
-    }
-    .footer-text {
-        font-size: 14px;
-        color: #aaa;
-        text-align: center;
-        margin-top: 50px;
+        color: #cccccc;
     }
     .pred-label {
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 600;
         text-align: center;
-        color: #3a0ca3;
-        margin-bottom: 8px;
+        color: #bb86fc;
+        margin-bottom: 10px;
     }
     .file-name {
         font-size: 14px;
-        font-weight: 500;
         text-align: center;
-        color: #4a148c;
-        margin-top: 4px;
-        margin-bottom: 8px;
+        color: #999999;
+        margin-top: 6px;
+        margin-bottom: 12px;
+    }
+    .result-word {
+        font-size: 24px;
+        font-weight: 600;
+        color: #03dac5;
+        text-align: center;
+        margin: 30px 0 20px 0;
+    }
+    .footer-text {
+        font-size: 13px;
+        color: #666666;
+        text-align: center;
+        margin-top: 50px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# Judul
-st.markdown('<div class="title-text">Semaphore Translator 📡</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle-text">Upload gambar posisi semaphore, dan sistem akan menerjemahkannya jadi huruf!</div>', unsafe_allow_html=True)
+# Title
+st.markdown('<div class="title-text">Semaphore Translator</div>', unsafe_allow_html=True)
 
-# Uploader
-uploaded_files = st.file_uploader("📂 Upload Gambar Semaphore", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
+# File uploader
+uploaded_files = st.file_uploader("Upload Gambar Semaphore", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
 
 if uploaded_files:
-    st.markdown('<div class="subheader-text">📖 Hasil Prediksi</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subheader-text">Hasil Prediksi</div>', unsafe_allow_html=True)
 
     word = ""
     max_columns = 6
     num_files = len(uploaded_files)
-    num_rows = (num_files // max_columns) + 1 if num_files % max_columns != 0 else num_files // max_columns
+    num_rows = (num_files // max_columns) + (1 if num_files % max_columns != 0 else 0)
 
-    # Prediksi huruf dulu untuk semua gambar
     predictions = []
     for uploaded_file in uploaded_files:
         image = Image.open(uploaded_file)
@@ -126,11 +125,8 @@ if uploaded_files:
         predictions.append((uploaded_file.name, image, letter))
         word += letter
 
-    # Tampilkan hasil prediksi kata
-    st.markdown(f'<div class="pred-label">🔤 <strong>Kata Hasil Prediksi:</strong> {word}</div>', unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(f'<div class="result-word">Hasil: {word}</div>', unsafe_allow_html=True)
 
-    # Tampilkan grid gambar dan hasilnya
     idx = 0
     for _ in range(num_rows):
         cols = st.columns(max_columns)
@@ -146,4 +142,4 @@ if uploaded_files:
                 break
 
 # Footer
-st.markdown('<div class="footer-text">Dibuat dengan ❤️ oleh Kelompok 18</div>', unsafe_allow_html=True)
+st.markdown('<div class="footer-text">© Kelompok 18</div>', unsafe_allow_html=True)
