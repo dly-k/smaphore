@@ -57,49 +57,64 @@ def predict_letter(image):
 st.markdown("""
     <style>
     .stApp {
-        background: linear-gradient(135deg, #ece9e6, #ffffff);
-        color: #333;
-        font-family: 'Arial Rounded MT Bold', sans-serif;
+        background-color: #fafafa;
+        font-family: 'Poppins', sans-serif;
     }
     .title-text {
-        font-size:48px;
-        font-weight:bold;
-        text-align:center;
-        color: #5a189a;
-        margin-bottom: 20px;
+        font-size: 42px;
+        font-weight: 700;
+        text-align: center;
+        color: #3a0ca3;
+        margin-bottom: 10px;
     }
     .subtitle-text {
-        font-size:22px;
-        text-align:center;
-        color: #6a4c93;
+        font-size: 18px;
+        text-align: center;
+        color: #555;
         margin-bottom: 30px;
     }
     .prediction-box {
-        background-color: #f3e9ff;
-        padding: 20px;
-        border-radius: 16px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        margin: 10px 0;
-        text-align:center;
+        background-color: #e0d4fd;
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        text-align: center;
+        margin-top: 20px;
+        font-size: 20px;
+        color: #3a0ca3;
+        font-weight: 500;
+    }
+    .footer-text {
+        font-size: 14px;
+        color: #aaa;
+        text-align: center;
+        margin-top: 50px;
+    }
+    .uploaded-img {
+        border-radius: 10px;
+        margin-bottom: 10px;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # ====== Judul & Deskripsi ====== #
-st.markdown('<div class="title-text">🎨 Semaphore Letter Prediction</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle-text">Upload gambar semaphore kamu — biarkan AI menebak hurufnya 🎌</div>', unsafe_allow_html=True)
+st.markdown('<div class="title-text">Semaphore Translator 📡</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle-text">Upload gambar posisi semaphore, dan sistem akan menerjemahkannya jadi huruf!</div>', unsafe_allow_html=True)
 
 # File uploader
-uploaded_files = st.file_uploader("📂 Pilih gambar semaphore", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
+uploaded_files = st.file_uploader("📂 Upload Gambar Semaphore", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
 
 if uploaded_files:
-    st.subheader("📖 Hasil Prediksi:")
+    st.subheader("📖 Hasil Prediksi")
     word = ""
     for uploaded_file in uploaded_files:
         image = Image.open(uploaded_file)
-        st.image(image, caption="📸 Uploaded Image", use_column_width=True)
+        st.image(image, caption="📸 Gambar yang Diunggah", use_column_width=True, output_format="JPEG")
         letter = predict_letter(image)
         word += letter
-        st.markdown(f'<div class="prediction-box">✨ <strong>Predicted Letter:</strong> {letter}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="prediction-box">✨ Prediksi Huruf: <strong>{letter}</strong></div>', unsafe_allow_html=True)
 
-    st.markdown(f'<div class="prediction-box" style="background-color:#d0bdf4;"><strong>🔤 Predicted Word:</strong> {word}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="prediction-box" style="background-color:#d0bdf4;">🔤 Kata Hasil Prediksi: <strong>{word}</strong></div>', unsafe_allow_html=True)
+
+# Footer
+st.markdown('<div class="footer-text">Dibuat dengan ❤️ oleh Kelompok 18</div>', unsafe_allow_html=True)
