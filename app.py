@@ -98,10 +98,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Title
-st.markdown('<div class="title-text">Semaphore Translator</div>', unsafe_allow_html=True)
+st.markdown('<div class="title-text">Penerjemah Semaphore</div>', unsafe_allow_html=True)
 
 # File uploader
-uploaded_files = st.file_uploader("Upload Gambar Semaphore", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
+uploaded_files = st.file_uploader("Upload Gambar Semaphore disini", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
 
 if uploaded_files:
     st.markdown('<div class="subheader-text">Hasil Prediksi</div>', unsafe_allow_html=True)
@@ -118,7 +118,7 @@ if uploaded_files:
         predictions.append((image, letter))
         word += letter
 
-    st.markdown(f'<div class="result-word">Hasil: {word}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="result-word">Kata Terbentuk: {word}</div>', unsafe_allow_html=True)
 
     idx = 0
     for _ in range(num_rows):
