@@ -73,6 +73,12 @@ st.markdown("""
         color: #555;
         margin-bottom: 30px;
     }
+    .subheader-text {
+        font-size: 26px;
+        font-weight: 600;
+        color: #5f0f40;
+        margin-bottom: 20px;
+    }
     .footer-text {
         font-size: 14px;
         color: #aaa;
@@ -86,6 +92,14 @@ st.markdown("""
         color: #3a0ca3;
         margin-bottom: 8px;
     }
+    .file-name {
+        font-size: 14px;
+        font-weight: 500;
+        text-align: center;
+        color: #4a148c;
+        margin-top: 4px;
+        margin-bottom: 8px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -97,29 +111,39 @@ st.markdown('<div class="subtitle-text">Upload gambar posisi semaphore, dan sist
 uploaded_files = st.file_uploader("📂 Upload Gambar Semaphore", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
 
 if uploaded_files:
-    st.subheader("📖 Hasil Prediksi")
+    st.markdown('<div class="subheader-text">📖 Hasil Prediksi</div>', unsafe_allow_html=True)
 
     word = ""
     max_columns = 6
     num_files = len(uploaded_files)
-    num_rows = (num_files // max_columns) + 1
+    num_rows = (num_files // max_columns) + 1 if num_files % max_columns != 0 else num_files // max_columns
 
-idx = 0
-for _ in range(num_rows):
-    cols = st.columns(max_columns)
-    for col in cols:
-        if idx < num_files:
-            image = Image.open(uploaded_files[idx])
-            letter = predict_letter(image)
-            word += letter
-            with col:
-                st.markdown(f'<div class="pred-label">{letter}</div>', unsafe_allow_html=True)
-                st.image(image, use_container_width=True, output_format="JPEG", clamp=True)
-            idx += 1
-        else:
-            break
+    # Prediksi huruf dulu untuk semua gambar
+    predictions = []
+    for uploaded_file in uploaded_files:
+        image = Image.open(uploaded_file)
+        letter = predict_letter(image)
+        predictions.append((uploaded_file.name, image, letter))
+        word += letter
 
+    # Tampilkan hasil prediksi kata
     st.markdown(f'<div class="pred-label">🔤 <strong>Kata Hasil Prediksi:</strong> {word}</div>', unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Tampilkan grid gambar dan hasilnya
+    idx = 0
+    for _ in range(num_rows):
+        cols = st.columns(max_columns)
+        for col in cols:
+            if idx < num_files:
+                filename, image, letter = predictions[idx]
+                with col:
+                    st.markdown(f'<div class="pred-label">{letter}</div>', unsafe_allow_html=True)
+                    st.image(image, use_container_width=True, output_format="JPEG", clamp=True)
+                    st.markdown(f'<div class="file-name">{filename}</div>', unsafe_allow_html=True)
+                idx += 1
+            else:
+                break
 
 # Footer
 st.markdown('<div class="footer-text">Dibuat dengan ❤️ oleh Kelompok 18</div>', unsafe_allow_html=True)
